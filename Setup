@@ -1,0 +1,40 @@
+1. Download and install Raspbian Lite image (Jessie)
+2. Connect USB to TTY cable to RPi and boot.
+3. Setup WiFi
+  a) sudo iwlist wlan0 scan | grep ESSID
+  b) wpa_passphrase "SSID" "Password"
+  c) sudo nano /etc/wpa_supplicant/wpa_supplicant.conf (add network info to bottom of file)
+      network={
+               ssid="SSID"
+               psk=generatedpasskeywithoutquotes
+       }
+  d)sudo wpa_cli reconfigure
+4. sudo raspi-config
+  a) change password
+  b) expand filesystem
+  c) enable ssh
+  d) enable i2c
+  e) change timezone
+  f) change video memory - 16M
+  g) change hostname
+  h) do not wait for network on boot
+
+5. sudo apt-get update && sudo apt-get upgrade
+6. sudo apt-get install python-pip git i2c-tools dnsmasq hostapd
+7. git clone https://github.com/BrewPi/brewpi-tools.git ~/brewpi-tools
+8. sudo pip install gitpython
+9. sudo ~/brewpi-tools/install.sh (accept defaults)
+10. sudo python ~/brewpi-tools/updater.py --ask (choose legacy on both questions)
+11. sudo modprobe rtc-ds1307
+12. sudo i2cdetect -y 1
+13. sudo bash
+   a) echo ds1307 0x68 > /sys/class/i2c-adapter/i2c-1/new_device
+   b) exit
+   c) sudo hwclock -r
+14. sudo hwclock -w
+15. sudo nano /etc/modules (add to end of file)
+      rtc-ds1307
+16. sudo nano /etc/rc.local (add before exit 0)
+      echo ds1307 0x68 > /sys/class/i2c-adapter/i2c-1/new_device
+      sudo hwclock -s
+      date
