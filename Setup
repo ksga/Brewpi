@@ -1,4 +1,5 @@
 1. Download and install Raspbian Lite image (Jessie)
+  a) add enable_uart=1 to the end of /boot/config.txt
 2. Connect USB to TTY cable to RPi and boot.
 3. Setup WiFi
   a) sudo iwlist wlan0 scan | grep ESSID
