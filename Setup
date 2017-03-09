@@ -22,10 +22,36 @@
 
 5. sudo apt-get update && sudo apt-get upgrade
 6. sudo apt-get install python-pip git i2c-tools dnsmasq hostapd
-7. git clone https://github.com/BrewPi/brewpi-tools.git ~/brewpi-tools
-8. sudo pip install gitpython
-9. sudo ~/brewpi-tools/install.sh (accept defaults)
-10. sudo python ~/brewpi-tools/updater.py --ask (choose legacy on both questions)
+7. sudo pip install gitpython
+8. sudo apt-get install apache2 libapache2-mod-php5 php5-cli php5-common php5-cgi php5 python-serial python-simplejson python-configobj python-psutil python-git arduino-core  build-essential python-dev python-pip git-core
+9. sudo pip install psutil --upgrade
+10. sudo pip install pyserial --upgrade
+  a) sudo useradd -m -k /dev/null -G www-data,dialout brewpi
+  b) sudo -u brewpi git clone -b legacy https://github.com/BrewPi/brewpi-script /home/brewpi/chamber1 #repeat as needed
+  c) sudo git clone -b legacy https://github.com/BrewPi/brewpi-www /var/www/chamber1 #repeat as needed
+  d) sudo nano /home/brewpi/chamber1/settings/config.cfg
+    scriptPath = /home/brewpi/chamber1/
+    wwwPath = /var/www/chamber1/
+    port = /dev/chamber1
+    altport = /dev/null
+    boardType = uno
+  e) sudo nano /var/www/chamber1/config_user.php
+    <?php
+    // The default settings in config.php are overruled by the settings in config_user.php
+    // To use custom settings, copy this file to config_user.php and make your changes in config_user.php
+    // do not add a php closing tag, because newlines after closing tag might be included in the html
+    // Do not include a trailing slash on the path
+    $scriptPath = '/home/brewpi/chamber1';
+  f) sudo nano /etc/cron.d/brewpi_chamber1
+    PYTHON=/usr/bin/python
+    SCRIPTPATH=/home/brewpi/chamber1
+    * * * * * brewpi $PYTHON $SCRIPTPATH/brewpi.py --config $SCRIPTPATH/settings/config.cfg --checkstartuponly --dontrunfile; [ $? != 0 ] && $PYTHON -u $SCRIPTPATH/brewpi.py --config $SCRIPTPATH/settings/config.cfg 1>$SCRIPTPATH/logs/stdout.txt 2>>$SCRIPTPATH/logs/stderr.txt &
+  g) sudo useradd -m -k /dev/null -G www-data,dialout brewpi
+  h) sudo passwd brewpi
+  i) 
+#8. git clone https://github.com/BrewPi/brewpi-tools.git ~/brewpi-tools
+#9. sudo ~/brewpi-tools/install.sh (accept defaults)
+#10. sudo python ~/brewpi-tools/updater.py --ask (choose legacy on both questions)
 11. sudo modprobe rtc-ds1307
   a) sudo apt-get -y remove fake-hwclock
   b) sudo update-rc.d -f fake-hwclock remove
